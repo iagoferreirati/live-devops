@@ -1,0 +1,34 @@
+{
+	"variables": {
+	"AWS_ACCESS_KEY_ID": "{env, `AWS_ACCESS_KEY_ID`}",
+	"AWS_SECRET_ACCESS_KEY": "{env, `AWS_SECRET_ACCESS_KEY`}"
+	},
+	"builders": [{
+		"type": "amazon-ebs",
+		"access_key": "{{user `AWS_ACCESS_KEY_ID`}}",
+		"secret_key": "{{user `AWS_SECRET_ACCESS_KEY`}}",
+		"region": "us-east-1",
+		"source_ami": "ami-0c4f7023847b90238",
+		"instance_type": "t2.micro",
+		"ssh_username": "ubuntu",
+		"ami_name": "packer-api-cep",
+    "force_deregister": true,
+    "force_delete_snapshot": true
+    }],
+    "provisioners": [
+      {
+        "type": "file",
+        "source": "./ansible",
+        "destination": "/tmp/ansible"
+      },
+      {
+          "type": "shell",
+          "inline": [
+            "sudo apt-add-repository ppa:ansible/ansible",
+            "sudo apt update",
+            "sudo apt -y install ansible",
+            "ansible-playbook --connection=local /tmp/ansible/playbook.yml"
+          ]
+        }
+    ]
+}
